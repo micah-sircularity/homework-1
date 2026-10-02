@@ -1,0 +1,32 @@
+#!/usr/bin/env python3
+"""Print the chunk count for one Markdown file."""
+
+import argparse
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from chunking import chunk_markdown
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Chunk a Markdown book.")
+    subparsers = parser.add_subparsers(dest="command", required=True)
+
+    count = subparsers.add_parser(
+        "count",
+        help="Print the chunk count for one Markdown file.",
+    )
+    count.add_argument("path", type=Path, help="Path to a Markdown file.")
+    count.add_argument("--size", type=int, default=2000, help="Window size in lines.")
+    count.add_argument("--step", type=int, default=1000, help="Step between windows in lines.")
+
+    args = parser.parse_args()
+    if args.command == "count":
+        chunk_count = chunk_markdown(args.path, size=args.size, step=args.step)
+        print(f'chunk count:"{chunk_count}"')
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,32 @@
+#!/usr/bin/env python3
+"""Search the chunk index and print each hit with its source book."""
+
+import argparse
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from index_docs import search
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Search the book index.")
+    parser.add_argument("term", help="Search query.")
+    parser.add_argument(
+        "--num-results",
+        type=int,
+        default=5,
+        help="How many results to return. Defaults to 5.",
+    )
+    args = parser.parse_args()
+
+    for result in search(args.term, num_results=args.num_results):
+        print(f"source: {result['source']}")
+        print(f"start: {result['start']}")
+        print(result["content"])
+        print()
+
+
+if __name__ == "__main__":
+    main()

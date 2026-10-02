@@ -1,0 +1,47 @@
+#!/usr/bin/env python3
+"""Run a RAG session. The message thread stays alive until the next line is empty."""
+
+import argparse
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from rag import new_messages, rag
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Course assistant RAG chatbot.")
+    parser.add_argument("question", nargs="?", help="Opening question. Later questions are read from the terminal.")
+    args = parser.parse_args()
+
+    messages = new_messages()
+    question = (args.question or "").strip()
+    if not question:
+        question = input("question: ").strip()
+
+    while question:
+        result = rag(question, messages)
+        response = result["response"]
+        print(response.answer)
+        print()
+        print(f"found_answer: {response.found_answer}")
+        print(f"confidence: {response.confidence}")
+        print(f"confidence_explanation: {response.confidence_explanation}")
+        print(f"answer_type: {response.answer_type}")
+        print("followup_questions:")
+        for followup in response.followup_questions:
+            print(f"- {followup}")
+        print()
+        print(f"input tokens: {result['input_tokens']}")
+        print(f"output tokens: {result['output_tokens']}")
+        print(f"cost: ${result['cost']:.6f}")
+        print()
+        try:
+            question = input("question: ").strip()
+        except EOFError:
+            break
+
+
+if __name__ == "__main__":
+    main()
